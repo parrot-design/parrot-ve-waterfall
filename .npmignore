@@ -1,0 +1,10 @@
+/node_modules
+/node_modules/**
+/src
+yarn.lock
+package-lock.json
+rollup.config.js 
+tsconfig.json
+tsconfig.d.json
+/public
+/examples
