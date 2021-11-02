@@ -1,9 +1,4 @@
-//判断是否是移动端
-global.navigator = {
-    userAgent: 'node',
-}
+//判断是否是移动端 
 export const isMobile = () => {
-    if (navigator) {
-        return !!navigator.userAgent.match(/(iPhone|iPod|Android|ios)/i)
-    }
+    return !!navigator.userAgent.match(/(iPhone|iPod|Android|ios)/i)
 }

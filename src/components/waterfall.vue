@@ -133,7 +133,7 @@ export default {
   },
   data() {
     return {
-      isMobile: isMobile(),
+      isMobile: false,
       isPreloading: true, // 正在预加载中，显示加载动画
       imgsArr_c: [], // 待图片预加载imgsArr完成，插入新的字段height之后,才会生成imgsArr_c，这时才开始渲染
       cols: NaN, // 需要根据窗口宽度初始化
@@ -318,6 +318,7 @@ export default {
     },
   },
   mounted() {
+    this.isMobile=isMobile();
     this.bindClickEvent();
     //this.loadingMiddle();
 
