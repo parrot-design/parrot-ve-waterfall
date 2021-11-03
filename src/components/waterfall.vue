@@ -41,7 +41,7 @@
           class="img-box"
           v-for="(item, index) in imgsArr_c"
           :key="index"
-          :class="[cardAnimationClass]"
+          :class="[cardAnimationClass, { __err__: item._error }]"
           :style="{
             padding: gap_c / 2 + 'px',
             width: isMobile ? '' : colWidth + 'px',
@@ -59,7 +59,7 @@
           >
             <img :src="item[srcKey]" />
           </component>
-        </div> 
+        </div>
       </div>
     </div>
   </div>
@@ -67,7 +67,7 @@
 
 <!-- —————————————↓JS————————分界线———————————————————————— -->
 <script>
-import Link from "./link.vue"; 
+import Link from "./link.vue";
 import { isMobile } from "../util";
 export default {
   name: "pt-vue-waterfall",
@@ -79,12 +79,7 @@ export default {
     height: {
       // 容器高度
       type: [Number, String],
-    },
-    loadingTimeOut: {
-      // 预加载事件小于500毫秒就不显示加载动画，增加用户体验
-      type: Number,
-      default: 500,
-    },
+    }, 
     loadingDotCount: {
       // loading 点数
       type: Number,
@@ -126,10 +121,11 @@ export default {
       type: Boolean,
       default: false,
     },
-    reachBottomDistance:{// 滚动触底距离，触发加载新图片
+    reachBottomDistance: {
+      // 滚动触底距离，触发加载新图片
       type: Number, // selector
-      default: 20  // 默认在最低那一列到底时触发
-    }
+      default: 20, // 默认在最低那一列到底时触发
+    },
   },
   data() {
     return {
@@ -141,7 +137,7 @@ export default {
       isFirstLoad: true, // 首次加载
       imgBoxEls: null, //所有的.img-box元素
       beginIndex: 0, // 开始要排列的图片索引,首次为第二列的第一张图片，后续加载则为已经排列图片的下一个索引
-      colsHeightArr: [], 
+      colsHeightArr: [],
       linkName: "Link",
     };
   },
@@ -165,16 +161,19 @@ export default {
     },
   },
   watch: {
-    imgsArr(newVal,oldVal){
-      if(this.imgsArr_c.length > newVal.length||(this.imgsArr_c.length > 0 && newVal[0] && !newVal[0]._height)){
-        this.reset()
+    imgsArr(newVal, oldVal) {
+      if (
+        this.imgsArr_c.length > newVal.length ||
+        (this.imgsArr_c.length > 0 && newVal[0] && !newVal[0]._height)
+      ) {
+        this.reset();
       }
       this.preload();
-    }
+    },
   },
   methods: {
     // ==1== 预加载
-    preload(src, imgIndex) {  
+    preload() {
       this.imgsArr.forEach((imgItem, imgIndex) => {
         if (imgIndex < this.loadedCount) return; // 只对新加载图片进行预加载
         // 无图时
@@ -191,30 +190,29 @@ export default {
         oImg.src = imgItem[this.srcKey];
         oImg.onload = oImg.onerror = (e) => {
           this.loadedCount++;
-        
+
           // 预加载图片，计算图片容器的高
           this.imgsArr[imgIndex]._height =
             e.type == "load"
               ? Math.round(this.imgWidth_c * (oImg.height / oImg.width))
-              : this.imgWidth_c;  
+              : this.imgWidth_c;
 
           if (e.type == "error") {
             this.imgsArr[imgIndex]._error = true;
             this.$emit("imgError", this.imgsArr[imgIndex]);
-          } 
-          if (this.loadedCount === this.imgsArr.length) { 
+          }
+          if (this.loadedCount === this.imgsArr.length) {
             this.$emit("preloaded");
           }
         };
       });
-      
     },
     // ==2== 计算cols
     calcuCols() {
       // 列数初始化
       let waterfallWidth = this.width ? this.width : window.innerWidth;
-      let cols = Math.max(parseInt(waterfallWidth / this.colWidth),1); 
-      return this.isMobile ? 2 : Math.min(cols,this.maxCols);
+      let cols = Math.max(parseInt(waterfallWidth / this.colWidth), 1);
+      return this.isMobile ? 2 : Math.min(cols, this.maxCols);
     },
     // ==3== waterfall布局
     waterfall() {
@@ -229,7 +227,7 @@ export default {
       if (this.beginIndex == 0) this.colsHeightArr = [];
       for (let i = this.beginIndex; i < this.imgsArr.length; i++) {
         if (!this.imgBoxEls[i]) return;
-        height = this.imgBoxEls[i].offsetHeight; 
+        height = this.imgBoxEls[i].offsetHeight;
         if (i < this.cols) {
           this.colsHeightArr.push(height);
           top = 0;
@@ -237,12 +235,12 @@ export default {
         } else {
           let minHeight = Math.min.apply(null, this.colsHeightArr); // 最低高低
           let minIndex = this.colsHeightArr.indexOf(minHeight); // 最低高度的索引
-          top = minHeight; 
+          top = minHeight;
           left = minIndex * colWidth;
           // 设置元素定位的位置
           // 更新colsHeightArr
           this.colsHeightArr[minIndex] = minHeight + height;
-        } 
+        }
         this.imgBoxEls[i].style.left = left + "px";
         this.imgBoxEls[i].style.top = top + "px";
       }
@@ -254,7 +252,7 @@ export default {
       this.cols = this.calcuCols();
       if (old === this.cols) return; // 列数不变直接退出
       this.beginIndex = 0; // 开始排列的元素索引
-      this.waterfall(); 
+      this.waterfall();
     },
     // ==5== 滚动触底事件
     scrollFn() {
@@ -262,30 +260,34 @@ export default {
       //如果正在预加载
       if (this.isPreloading) return;
       let minHeight = Math.min.apply(null, this.colsHeightArr);
-      if(scrollEl.scrollTop + scrollEl.offsetHeight > minHeight - this.reachBottomDistance){
-        this.isPreloading=true;
-        this.$emit('scrollReachBottom') 
+      if (
+        scrollEl.scrollTop + scrollEl.offsetHeight >
+        minHeight - this.reachBottomDistance
+      ) {
+        this.isPreloading = true;
+        this.$emit("scrollReachBottom");
       }
     },
     scroll() {
       this.$refs.scrollEl.addEventListener("scroll", this.scrollFn);
     },
     // ==6== 点击事件绑定
-    bindClickEvent(){
-      this.$el.querySelector('.vue-waterfall')
-        .addEventListener('click',e=>{
-          let targetEl=e.target;
-          let targetClassName=targetEl.className; 
-          if(targetClassName.indexOf('img-box')!=-1) return;
-          while(targetClassName.indexOf('img-inner-box')==-1){
-            targetEl=targetEl.parentNode;
+    bindClickEvent() {
+      this.$el
+        .querySelector(".vue-waterfall")
+        .addEventListener("click", (e) => {
+          let targetEl = e.target;
+          let targetClassName = targetEl.className;
+          if (targetClassName.indexOf("img-box") != -1) return;
+          while (targetClassName.indexOf("img-inner-box") == -1) {
+            targetEl = targetEl.parentNode;
           }
-          let index=targetEl.getAttribute('data-index');
-          this.$emit('click',e,{
+          let index = targetEl.getAttribute("data-index");
+          this.$emit("click", e, {
             index,
-            value:this.imgsArr_c[index]
-          })
-        })
+            value: this.imgsArr_c[index],
+          });
+        });
     },
     // ==7== 下拉事件
     pullDown() {
@@ -311,14 +313,14 @@ export default {
     },
     reset: function () {
       this.imgsArr_c = [];
-      this.beginIndex = 0
+      this.beginIndex = 0;
       this.loadedCount = 0;
       this.isFirstLoad = true;
-      this.isPreloading=true; 
+      this.isPreloading = true;
     },
   },
   mounted() {
-    this.isMobile=isMobile();
+    this.isMobile = isMobile();
     this.bindClickEvent();
     //this.loadingMiddle();
 
@@ -326,9 +328,9 @@ export default {
     this.cols = this.calcuCols();
     this.$on("preloaded", () => {
       this.isFirstLoad = false;
-      this.imgsArr_c = this.imgsArr.concat([]); // 预加载完成，这时才开始渲染 
+      this.imgsArr_c = this.imgsArr.concat([]); // 预加载完成，这时才开始渲染
       this.$nextTick(() => {
-        this.isPreloading = false;  
+        this.isPreloading = false;
         this.waterfall();
       });
     });
@@ -401,7 +403,20 @@ export default {
           border: none;
         }
       }
-    } 
+
+      &.__err__ {
+        .img-inner-box {
+          background-image: url(data:image/jpeg;base64,/9j/4QAYRXhpZgAASUkqAAgAAAAAAAAAAAAAAP/sABFEdWNreQABAAQAAAAeAAD/4QMraHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLwA8P3hwYWNrZXQgYmVnaW49Iu+7vyIgaWQ9Ilc1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCI/PiA8eDp4bXBtZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIiB4OnhtcHRrPSJBZG9iZSBYTVAgQ29yZSA1LjMtYzAxMSA2Ni4xNDU2NjEsIDIwMTIvMDIvMDYtMTQ6NTY6MjcgICAgICAgICI+IDxyZGY6UkRGIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+IDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjk1M0JCM0QwNkVFNDExRThCNTJCQUQ2RDFGQzg0NzIxIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjk1M0JCM0NGNkVFNDExRThCNTJCQUQ2RDFGQzg0NzIxIiB4bXA6Q3JlYXRvclRvb2w9IkFkb2JlIFBob3Rvc2hvcCBDUzYgKFdpbmRvd3MpIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6QTYwRUMyMDE2RUUzMTFFOEJCRTU5RTFDODg1ODgwMjYiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6QTYwRUMyMDI2RUUzMTFFOEJCRTU5RTFDODg1ODgwMjYiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz7/7gAOQWRvYmUAZMAAAAAB/9sAhAAQCwsLDAsQDAwQFw8NDxcbFBAQFBsfFxcXFxcfHhcaGhoaFx4eIyUnJSMeLy8zMy8vQEBAQEBAQEBAQEBAQEBAAREPDxETERUSEhUUERQRFBoUFhYUGiYaGhwaGiYwIx4eHh4jMCsuJycnLis1NTAwNTVAQD9AQEBAQEBAQEBAQED/wAARCACRAJEDASIAAhEBAxEB/8QAZQAAAwEBAQAAAAAAAAAAAAAAAAIDAQQHAQEAAAAAAAAAAAAAAAAAAAAAEAACAQMDBAEFAAMBAAAAAAAAAQIRMQMhQRJRYYEycZHBIkITsdFSYhEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8A9AAAAAMFnNQWt9kAwkssVbV9CTnKb10XQVtLSyAd5ZuzURW27yfhmX9RlDI+wD4Vf/ZVi41SKCdeNI3YEnOXJtOiBZZr/wBGcMi2Ft7AXjli76PoOcqael0Mpyg9NV0A6QEhNTWl90MBoAAAAAAGGiTlxjXfZAZkycdEqyI3q26sOrd92CTm6bbsA1boh1i3lqPGKiqIZAYklYHY0x6tIDY2B3NdjEBgNJ3NACTxbx0E1TozoYsoqSowI2o06MtjyctGqSItODptsw6NX2YHSaJCXKNd90OAAAAYznnLnJvZWK5pUjRXloiNdwCjk0l9S0YqKohcSpGrvLUcDUBLK23x23FWNtVSAuHch/KXQP5PoBdqq77GJ1XfczFVKjVBcuPk6rXqBQCH8n0D+UugFwZD+bV1oNif5OOzQDyipKjI0cW0/qXYmVVjVXjqAkZcHXZ3OhHNXcthlWNHeOjAoAABDLKs6bISlWl1Busm+42Jfm30At2BmI1gRy+3gpD1XwTy+3gpH1QDASyt8uKdFuJRw1iwOjdBKy+TIutGbK3kAAxtJNuwiywdmA7s/glj9/BV04unQli9l8AWDsBjAhSja6D4pUnTZmZV+afUVOkk+4HUBgAc0bD4v2+fsJGw+L9vn7AVQMEDAjl9vBSHqvgnl9vBSHqvgDJwbfJC8JPSlEO5wTo3qMnUDEqNGz0jXoD08BRSXyBB/m6u2xvFPQ1qjoDAVNxqv1ZuJUnT5BGw9/AFQYAwJZf1+fsJKw+X9fn7CSsB0AAAc7VG13GxP82uoZFSbezFWkkwOgGCBgRy15adDZTaioq7QZPfwZQDFFfPc2MnB0vE1AwCc+WituPjaS4kzU6agPkS9hEVeqJJU0AAh7+ACHv4AqAAwI5X+aXQVKrS7g3WTY2ONZp7IC9AAAJ5lWNf+dSV1XqdL1VGc8lxk47bAUxyqqO60GIpuL5LyuxZNNVVtmAmVfkpbbi1RYAI1QVRYAI1QJ1aRYzdAbJ8Y1I1RZggI1SNxL8uW1NCoAYxckqKiu9Bm0lV23ZFtyfJ+F2Ayyr0K4VSNf8ArUnFcpKO250LRUQABoAYLkhzXdWHMA5u26uNGXF9tx8uOusfYlbTcC6aaqrdTTnTlHVfQrHJF6PRsBwAAC5i9vg0xbgaAIAAxtJVduosskVotWiTcpav6ANKXJ9the27sF9NyuLHTWXsA2OHBd3cYDQAAAAAAAwSeNS1syhgHNRxdJfUK10ujoaTuJLCrp0Amm1Ztdhv6z3Sfkxwmu4leqoBT+1P1f8AkZy4469daEaopllRqPRAH9ZOyp5Fbbu2+xmuyGUJvsAtaaWQUcnSP1Kxwq7dR0krALDGo63Y4GgAAAAAAAAAAAAAAAAAshJ7AAGK6B3YABsNx4gADAAAAAAAAAAAAAf/2Q==);
+          background-repeat: no-repeat;
+          background-position: center;
+          background-size: 50% 50%;
+
+          & > img {
+            display: none;
+          }
+        }
+      }
+    }
   }
 
   > .loading {

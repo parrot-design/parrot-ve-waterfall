@@ -1,10 +1,59 @@
+# @parrotjs/vue-waterfall 7.x
+
+1. 可以进行多列展示，宽度列数都可以单独设置。
+2. 支持自适应和手机端。
+3. 支持滚动加载
+
+# 支持的属性
+
+| 属性 | 代表含义 | 是否必要 | 类型 | 默认值 |
+| :-----:  | :----: | :----: | :----: | :----: |
+| width  | 容器宽度 | 否 | number | - |
+| height | 容器高度 | 否 | [number,string] | - |
+| loadingDotCount | 加载小圆点的数量 | 否 | number | 3 |
+| loadingDotStyle | 加载小圆点的样式 | 否 | style object | - |
+| srcKey | 指代src的key | 否 | string | src |
+| imgWidth | 图片宽度 | 否 | number | 240 |
+| gap | 图片之间的间隔 | 否 | number | 20 |
+| mobileGap | 移动端之间的间隔 | 否 | number | 8 |
+| imgsArr | 图片数组 | 是 | array | [] |
+| maxCols | 最大列数 | 否 | number | 5 |
+| cardAnimationClass | 指定图片加载动画 | 否 | string | default-card-animation |
+| reachBottomDistance | 滚动触底距离 | 否 | number | 20 |
+
+# 支持的事件
+
+| 属性 | 代表含义 | 参数 |
+| :-----:  | :----: | :----: |
+| preloaded  | 图片预加载完毕后 | - |
+| imgError  | 图片加载失败后 | 加载错误的那一项 |
+| scrollReachBottom  | 滚动到底部 | - |
+| click | 点击图片 | 点击那一项的坐标与值 |
+
+# 支持的插槽
+
+| 属性 | 代表含义 | 参数 |
+| :-----:  | :----: | :----: |
+| loading  | 加载中的插槽 | - |
+| waterfall-head  | 瀑布流的头部插槽 | - |
+
+# 使用方法
+
+1.安装
+
+```
+npm install @parrotjs/vue-waterfall -S
+```
+
+2.使用
+
+```js
 <template>
   <vue-waterfall-easy :imgsArr="imgsArr" @scrollReachBottom="handleReachBottom"></vue-waterfall-easy>
 </template>
 
 <script>
-import vueWaterfallEasy from "../../src";
- 
+import vueWaterfallEasy from "@parrotjs/vue-waterfall"; 
 export default {
   components: {
     vueWaterfallEasy,
@@ -118,11 +167,9 @@ export default {
       ],
     };
   },
-  methods: {
-    getData: function () {},
+  methods: { 
     handleReachBottom:function(){
-      this.imgsArr=this.imgsArr.concat(this.imgsArr);
-      console.log("--this.imgsArr--",this.imgsArr)
+      this.imgsArr=this.imgsArr.concat(this.imgsArr); 
     }
   },
 };
@@ -130,3 +177,4 @@ export default {
 
 <style>
 </style>
+```
