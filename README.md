@@ -59,6 +59,7 @@ npm install @parrotjs/vue-waterfall -S
 
 <script>
 import vueWaterfallEasy from "@parrotjs/vue-waterfall"; 
+import "@parrotjs/vue-waterfall/dist/vue-waterfall.css";
 export default {
   components: {
     vueWaterfallEasy,
