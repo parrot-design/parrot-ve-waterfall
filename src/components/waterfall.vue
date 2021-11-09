@@ -46,19 +46,33 @@
             padding: gap_c / 2 + 'px',
             width: isMobile ? '' : colWidth + 'px',
           }"
+          @click="
+            handleClickImage($event, {
+              value: item,
+              index: index,
+            })
+          "
         >
-          <component
-            class="img-inner-box"
-            :is="linkName"
-            v-if="item[srcKey]"
-            :data-index="index"
-            :style="{
-              width: imgWidth_c + 'px',
-              height: item._height ? item._height + 'px' : false,
-            }"
-          >
-            <img :src="item[srcKey]" />
-          </component>
+          <div :class="[cardClass]">
+            <div class="img-box-header" v-if="hasHeaderSlot">
+              <slot name="header" :data="item" />
+            </div>
+            <component
+              class="img-inner-box" 
+              :is="linkName"
+              v-if="item[srcKey]"
+              :data-index="index"
+              :style="{
+                width: imgWidth_c + 'px',
+                height: item._height ? item._height + 'px' : false,
+              }"
+            >
+              <img :src="item[srcKey]" />
+            </component>
+            <div class="img-box-footer" v-if="hasFooterSlot">
+              <slot name="footer" :data="item" />
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -79,7 +93,7 @@ export default {
     height: {
       // 容器高度
       type: [Number, String],
-    }, 
+    },
     loadingDotCount: {
       // loading 点数
       type: Number,
@@ -117,6 +131,10 @@ export default {
       type: [String],
       default: "default-card-animation",
     },
+    cardClass: {
+      type: [String],
+      default: "",
+    },
     enablePullDownEvent: {
       type: Boolean,
       default: false,
@@ -147,6 +165,12 @@ export default {
   computed: {
     hasLoadingSlot() {
       return !!this.$scopedSlots.loading;
+    },
+    hasFooterSlot() {
+      return !!this.$scopedSlots.footer;
+    },
+    hasHeaderSlot(){
+      return !!this.$scopedSlots.header;
     },
     imgWidth_c() {
       //对于移动端重新计算图片宽度
@@ -271,23 +295,8 @@ export default {
     scroll() {
       this.$refs.scrollEl.addEventListener("scroll", this.scrollFn);
     },
-    // ==6== 点击事件绑定
-    bindClickEvent() {
-      this.$el
-        .querySelector(".vue-waterfall")
-        .addEventListener("click", (e) => {
-          let targetEl = e.target;
-          let targetClassName = targetEl.className;
-          if (targetClassName.indexOf("img-box") != -1) return;
-          while (targetClassName.indexOf("img-inner-box") == -1) {
-            targetEl = targetEl.parentNode;
-          }
-          let index = targetEl.getAttribute("data-index");
-          this.$emit("click", e, {
-            index,
-            value: this.imgsArr_c[index],
-          });
-        });
+    handleClickImage(e, value) {
+      this.$emit("click", e, value);
     },
     // ==7== 下拉事件
     pullDown() {
@@ -311,6 +320,8 @@ export default {
         }
       });
     },
+    //计算插槽的高度
+    footerHeight: function () {},
     reset: function () {
       this.imgsArr_c = [];
       this.beginIndex = 0;
@@ -321,8 +332,6 @@ export default {
   },
   mounted() {
     this.isMobile = isMobile();
-    this.bindClickEvent();
-    //this.loadingMiddle();
 
     this.preload();
     this.cols = this.calcuCols();

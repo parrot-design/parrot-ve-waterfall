@@ -1,5 +1,18 @@
 <template>
-  <vue-waterfall-easy :imgsArr="imgsArr" @scrollReachBottom="handleReachBottom"></vue-waterfall-easy>
+  <vue-waterfall-easy 
+    :imgsArr="imgsArr" 
+    @scrollReachBottom="handleReachBottom"
+    :img-width="300"
+    cardClass="cardStyle"
+    @click="handleClick"
+  >
+    <template v-slot:header="headerProps">
+      <div style="width:100%;height:100px;overflow:hidden;"><div>{{headerProps.data.headerText}}</div></div>
+    </template>
+    <template v-slot:footer="footerProps">
+      <div style="width:100%;height:200px;overflow:hidden;"><div>{{footerProps.data.info}}</div></div>
+    </template>
+  </vue-waterfall-easy>
 </template>
 
 <script>
@@ -11,21 +24,18 @@ export default {
   },
   data() {
     return {
-      imgsArr: [
-        {
-          src: "https://gimg2.baid=http%3A%2F%2Fimage.biaobaiju.com%2Fuploads%2F20180211%2F00%2F1518279736-ImsfeASJcb.jpg&refer=http%3A%2F%2Fimage.biaobaiju.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1638440861&t=401c068f0a25ed2a42a4b070c6ee6a96",
-          href: "https://www.baidu.com",
-          info: "一些图片描述文字",
-        },
+      imgsArr: [ 
         {
           src: "https://gimg2.baidu.com/image_search/src=http%3A%2F%2F5b0988e595225.cdn.sohucs.com%2Fq_70%2Cc_zoom%2Cw_640%2Fimages%2F20190210%2F8534c3170a314d83b104d04aa120a040.jpeg&refer=http%3A%2F%2F5b0988e595225.cdn.sohucs.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1638440861&t=d15af814c4ae34b95bc60e35efc88e4c", 
           href: "https://www.baidu.com",
-          info: "一些图片描述文字",
+          info: "我是第一张图片",
+          headerText:'测试' 
         },
         {
           src: "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fwww.desktx.com%2Fd%2Ffile%2Fwallpaper%2Fanimals%2F20160822%2F05128add3de7bc5acfa3a38612673e1d.jpg&refer=http%3A%2F%2Fwww.desktx.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1638440861&t=667c221c38da5abdb0ed7d34d87ef564", 
           href: "https://www.baidu.com",
-          info: "一些图片描述文字",
+          info: "一些图片描述文字asdasdasdasdasdasasdasd",
+          headerText:'测试' 
         },
         {
           src: "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fwww.yidianzhidao.com%2FUploadFiles%2Fimg_1_1195934273_1809290298_26.jpg&refer=http%3A%2F%2Fwww.yidianzhidao.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1638440861&t=220f9c21856a2bb0cc71f76ba0b5e2cc",
@@ -123,10 +133,16 @@ export default {
     handleReachBottom:function(){
       this.imgsArr=this.imgsArr.concat(this.imgsArr);
       console.log("--this.imgsArr--",this.imgsArr)
+    },
+    handleClick:function(e,instance){
+      console.log("==handleClick===",e,instance)
     }
   },
 };
 </script>
 
 <style>
+.cardStyle{ 
+  box-shadow:rgba(0,0, 0,.2) 0px 3px 1px -2px, rgba(0, 0, 0 ,.14) 0px 2px 2px 0px, rgba(0,0, 0, .12) 0px 1px 5px 0px;
+}
 </style>

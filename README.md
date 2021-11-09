@@ -20,6 +20,7 @@
 | maxCols | 最大列数 | 否 | number | 5 |
 | cardAnimationClass | 指定图片加载动画 | 否 | string | default-card-animation |
 | reachBottomDistance | 滚动触底距离 | 否 | number | 20 |
+| cardClass | 卡片class类 | 否 | string | - |
 
 # 支持的事件
 
@@ -176,5 +177,34 @@ export default {
 </script>
 
 <style>
+</style>
+```
+
+# 2021-11-9 更新 (下载8.0.0版本)
+
+## 1.修复点击图片报错
+
+## 2.新增头部插槽、尾部插槽、卡片class属性
+
+```js
+<vue-waterfall-easy 
+    :imgsArr="imgsArr" 
+    @scrollReachBottom="handleReachBottom"
+    :img-width="300"
+    cardClass="cardStyle"
+    @click="handleClick"
+  >
+    <template v-slot:header="headerProps">
+      <div style="width:100%;height:100px;overflow:hidden;"><div>{{headerProps.data.headerText}}</div></div>
+    </template>
+    <template v-slot:footer="footerProps">
+      <div style="width:100%;height:200px;overflow:hidden;"><div>{{footerProps.data.info}}</div></div>
+    </template>
+</vue-waterfall-easy>
+
+<style>
+.cardStyle{ 
+  box-shadow:rgba(0,0, 0,.2) 0px 3px 1px -2px, rgba(0, 0, 0 ,.14) 0px 2px 2px 0px, rgba(0,0, 0, .12) 0px 1px 5px 0px;
+}
 </style>
 ```
