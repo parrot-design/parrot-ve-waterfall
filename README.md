@@ -1,5 +1,10 @@
 # @parrotjs/vue-waterfall 7.x
 
+# 预览效果
+
+![waterfall-mao](https://user-images.githubusercontent.com/77631518/140244189-41323dbd-734b-451a-89a3-2e6c5dfbbaeb.gif)
+
+
 1. 可以进行多列展示，宽度列数都可以单独设置。
 2. 支持自适应和手机端。
 3. 支持滚动加载
@@ -55,6 +60,7 @@ npm install @parrotjs/vue-waterfall -S
 
 <script>
 import vueWaterfallEasy from "@parrotjs/vue-waterfall"; 
+import "@parrotjs/vue-waterfall/dist/vue-waterfall.css";
 export default {
   components: {
     vueWaterfallEasy,
